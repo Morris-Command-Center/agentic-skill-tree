@@ -419,7 +419,145 @@
             padding: 2rem;
             color: var(--text-secondary);
         }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 0.5rem 1rem;
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+
+        .tab-btn:hover {
+            border-color: var(--text-secondary);
+        }
+
+        .tab-btn.active {
+            background: var(--border);
+            color: var(--text-primary);
+            border-color: var(--text-primary);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Learning content styles */
+        .learning-content {
+            font-size: 0.9rem;
+            line-height: 1.7;
+        }
+
+        .learning-content h1 {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .learning-content h2 {
+            font-size: 1.1rem;
+            margin: 1.5rem 0 0.75rem;
+            color: var(--text-primary);
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0.25rem;
+        }
+
+        .learning-content h3 {
+            font-size: 1rem;
+            margin: 1rem 0 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .learning-content p {
+            margin-bottom: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .learning-content ul, .learning-content ol {
+            margin: 0.5rem 0 1rem 1.5rem;
+            color: var(--text-secondary);
+        }
+
+        .learning-content li {
+            margin-bottom: 0.35rem;
+        }
+
+        .learning-content code {
+            background: rgba(255,255,255,0.1);
+            padding: 0.15rem 0.4rem;
+            border-radius: 4px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.85em;
+        }
+
+        .learning-content pre {
+            background: var(--bg-dark);
+            padding: 1rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 0.75rem 0;
+        }
+
+        .learning-content pre code {
+            background: none;
+            padding: 0;
+        }
+
+        .learning-content strong {
+            color: var(--text-primary);
+        }
+
+        .learning-content hr {
+            border: none;
+            border-top: 1px solid var(--border);
+            margin: 1.5rem 0;
+        }
+
+        .learning-content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+
+        .learning-content th, .learning-content td {
+            border: 1px solid var(--border);
+            padding: 0.5rem;
+            text-align: left;
+        }
+
+        .learning-content th {
+            background: var(--bg-dark);
+        }
+
+        .learning-loading {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-secondary);
+        }
+
+        .learning-unavailable {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-secondary);
+            font-style: italic;
+        }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 <body>
     <header>
@@ -583,6 +721,7 @@
 
         function selectSkill(skill, branch) {
             selectedSkill = skill;
+            selectedBranch = branch;
             const progress = getSkillProgress(skill.id);
             const skillChallenges = challengesData.filter(c => c.skill_ids.includes(skill.id));
 
@@ -603,33 +742,75 @@
                         </div>
                     </div>
 
-                    ${skill.tips.length > 0 ? `
-                        <div class="tips">
-                            <h3>Tips</h3>
-                            <ul>
-                                ${skill.tips.map(tip => `<li>${tip}</li>`).join('')}
-                            </ul>
-                        </div>
-                    ` : ''}
+                    <div class="tabs">
+                        <button class="tab-btn active" onclick="switchTab('learn', '${skill.id}')">Learn</button>
+                        <button class="tab-btn" onclick="switchTab('challenges', '${skill.id}')">Challenges</button>
+                        <button class="tab-btn" onclick="switchTab('tips', '${skill.id}')">Tips</button>
+                    </div>
 
-                    <h3 style="margin-bottom: 0.75rem;">Challenges</h3>
-                    <div class="challenges-list">
-                        ${skillChallenges.length > 0 ? skillChallenges.map(c => `
-                            <div class="challenge-card">
-                                <div class="challenge-header">
-                                    <span class="challenge-name">${c.name}</span>
-                                    <span class="challenge-xp">+${c.xp_reward} XP</span>
+                    <div id="tab-learn" class="tab-content active">
+                        <div class="learning-loading">Loading...</div>
+                    </div>
+
+                    <div id="tab-challenges" class="tab-content">
+                        <div class="challenges-list">
+                            ${skillChallenges.length > 0 ? skillChallenges.map(c => `
+                                <div class="challenge-card">
+                                    <div class="challenge-header">
+                                        <span class="challenge-name">${c.name}</span>
+                                        <span class="challenge-xp">+${c.xp_reward} XP</span>
+                                    </div>
+                                    <p class="challenge-desc">${c.description}</p>
+                                    <span class="challenge-difficulty ${c.difficulty}">${c.difficulty}</span>
+                                    <button class="complete-btn" onclick="openCompleteModal('${c.id}')">
+                                        Mark Complete
+                                    </button>
                                 </div>
-                                <p class="challenge-desc">${c.description}</p>
-                                <span class="challenge-difficulty ${c.difficulty}">${c.difficulty}</span>
-                                <button class="complete-btn" onclick="openCompleteModal('${c.id}')">
-                                    Mark Complete
-                                </button>
+                            `).join('') : '<p style="color: var(--text-secondary)">No challenges yet for this skill.</p>'}
+                        </div>
+                    </div>
+
+                    <div id="tab-tips" class="tab-content">
+                        ${skill.tips.length > 0 ? `
+                            <div class="tips">
+                                <ul>
+                                    ${skill.tips.map(tip => `<li>${tip}</li>`).join('')}
+                                </ul>
                             </div>
-                        `).join('') : '<p style="color: var(--text-secondary)">No challenges yet for this skill.</p>'}
+                        ` : '<p style="color: var(--text-secondary)">No tips available yet.</p>'}
                     </div>
                 </div>
             `;
+
+            // Load learning content
+            loadLearningContent(skill.id);
+        }
+
+        let selectedBranch = null;
+
+        async function loadLearningContent(skillId) {
+            const container = document.getElementById('tab-learn');
+            try {
+                const res = await fetch(`/api/learn/${skillId}`);
+                if (res.ok) {
+                    const markdown = await res.text();
+                    container.innerHTML = `<div class="learning-content">${marked.parse(markdown)}</div>`;
+                } else {
+                    container.innerHTML = '<div class="learning-unavailable">Learning content coming soon...</div>';
+                }
+            } catch (e) {
+                container.innerHTML = '<div class="learning-unavailable">Learning content coming soon...</div>';
+            }
+        }
+
+        function switchTab(tabName, skillId) {
+            // Update button states
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Update content visibility
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById(`tab-${tabName}`).classList.add('active');
         }
 
         function openCompleteModal(challengeId) {

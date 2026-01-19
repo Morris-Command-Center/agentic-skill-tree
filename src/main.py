@@ -1,6 +1,6 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, PlainTextResponse
 from pathlib import Path
 from pydantic import BaseModel
 from typing import Optional
@@ -22,6 +22,7 @@ app = FastAPI(
 )
 
 STATIC_DIR = Path(__file__).parent.parent / "static"
+LEARNING_DIR = Path(__file__).parent.parent / "data" / "learning"
 
 
 # Request/Response models
@@ -152,6 +153,20 @@ def update_confidence(data: UpdateSkillConfidence):
 def get_completions(challenge_id: Optional[str] = None):
     """Get challenge completion history"""
     return db.get_challenge_completions(challenge_id)
+
+
+@app.get("/api/learn/{skill_id}", response_class=PlainTextResponse)
+def get_learning_content(skill_id: str):
+    """Get learning content for a skill"""
+    skill = get_skill_by_id(skill_id)
+    if not skill:
+        raise HTTPException(status_code=404, detail="Skill not found")
+
+    learning_file = LEARNING_DIR / f"{skill_id}.md"
+    if not learning_file.exists():
+        raise HTTPException(status_code=404, detail="Learning content not yet available")
+
+    return learning_file.read_text(encoding="utf-8")
 
 
 @app.get("/api/stats")
