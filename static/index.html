@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agentic Skill Tree</title>
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --bg-card: #1e293b;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --border: #334155;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        header {
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .stats {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+        }
+
+        main {
+            display: flex;
+            height: calc(100vh - 70px);
+        }
+
+        .tree-panel {
+            flex: 1;
+            padding: 2rem;
+            overflow-y: auto;
+        }
+
+        .sidebar {
+            width: 400px;
+            background: var(--bg-card);
+            border-left: 1px solid var(--border);
+            padding: 1.5rem;
+            overflow-y: auto;
+        }
+
+        .branch {
+            margin-bottom: 2rem;
+        }
+
+        .branch-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .branch-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .branch-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .branch-progress {
+            margin-left: auto;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .skills-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 1rem;
+        }
+
+        .skill-node {
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .skill-node:hover {
+            transform: translateY(-2px);
+            border-color: var(--text-secondary);
+        }
+
+        .skill-node.locked {
+            opacity: 0.5;
+        }
+
+        .skill-node.available {
+            border-color: #60a5fa;
+        }
+
+        .skill-node.in_progress {
+            border-color: #fbbf24;
+            background: rgba(251, 191, 36, 0.1);
+        }
+
+        .skill-node.completed {
+            border-color: #34d399;
+            background: rgba(52, 211, 153, 0.1);
+        }
+
+        .skill-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .skill-xp {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .confidence-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid var(--bg-dark);
+        }
+
+        .confidence-badge.red { background: #ef4444; }
+        .confidence-badge.yellow { background: #fbbf24; }
+        .confidence-badge.green { background: #22c55e; }
+
+        .sidebar h2 {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .skill-detail {
+            display: none;
+        }
+
+        .skill-detail.active {
+            display: block;
+        }
+
+        .skill-detail p {
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+            line-height: 1.5;
+        }
+
+        .tips {
+            margin-bottom: 1.5rem;
+        }
+
+        .tips h3 {
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+        }
+
+        .tips ul {
+            list-style: none;
+            font-size: 0.85rem;
+        }
+
+        .tips li {
+            padding: 0.5rem;
+            background: rgba(255,255,255,0.05);
+            border-radius: 6px;
+            margin-bottom: 0.5rem;
+        }
+
+        .tips li::before {
+            content: "→ ";
+            color: var(--text-secondary);
+        }
+
+        .challenges-list {
+            margin-top: 1rem;
+        }
+
+        .challenge-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .challenge-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 0.5rem;
+        }
+
+        .challenge-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .challenge-xp {
+            background: #22c55e;
+            color: #000;
+            padding: 0.15rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .challenge-desc {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.75rem;
+        }
+
+        .challenge-difficulty {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            display: inline-block;
+        }
+
+        .challenge-difficulty.easy { background: #22c55e33; color: #22c55e; }
+        .challenge-difficulty.medium { background: #fbbf2433; color: #fbbf24; }
+        .challenge-difficulty.hard { background: #ef444433; color: #ef4444; }
+
+        .complete-btn {
+            width: 100%;
+            margin-top: 0.75rem;
+            padding: 0.5rem;
+            background: #3b82f6;
+            border: none;
+            border-radius: 6px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .complete-btn:hover {
+            background: #2563eb;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 1.5rem;
+            width: 90%;
+            max-width: 500px;
+        }
+
+        .modal h3 {
+            margin-bottom: 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .form-group textarea {
+            width: 100%;
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 0.75rem;
+            color: var(--text-primary);
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .rating-group {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .rating-btn {
+            width: 40px;
+            height: 40px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            background: transparent;
+            color: var(--text-primary);
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .rating-btn:hover, .rating-btn.selected {
+            border-color: #fbbf24;
+            background: rgba(251, 191, 36, 0.2);
+        }
+
+        .confidence-group {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .confidence-btn {
+            flex: 1;
+            padding: 0.5rem;
+            border: 2px solid var(--border);
+            border-radius: 6px;
+            background: transparent;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+
+        .confidence-btn.red { color: #ef4444; }
+        .confidence-btn.yellow { color: #fbbf24; }
+        .confidence-btn.green { color: #22c55e; }
+
+        .confidence-btn:hover, .confidence-btn.selected {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .confidence-btn.selected.red { border-color: #ef4444; }
+        .confidence-btn.selected.yellow { border-color: #fbbf24; }
+        .confidence-btn.selected.green { border-color: #22c55e; }
+
+        .modal-actions {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+        }
+
+        .modal-actions button {
+            flex: 1;
+            padding: 0.75rem;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-cancel {
+            background: var(--border);
+            color: var(--text-primary);
+        }
+
+        .btn-submit {
+            background: #22c55e;
+            color: #000;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-secondary);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Agentic Skill Tree</h1>
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-value" id="total-xp">0</div>
+                <div class="stat-label">Total XP</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="challenges-done">0</div>
+                <div class="stat-label">Challenges</div>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <div class="tree-panel" id="tree-panel">
+            <!-- Skill tree branches will be rendered here -->
+        </div>
+
+        <div class="sidebar">
+            <div id="sidebar-content">
+                <div class="empty-state">
+                    <p>Select a skill to see details and challenges</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Completion Modal -->
+    <div class="modal-overlay" id="completion-modal">
+        <div class="modal">
+            <h3>Complete Challenge</h3>
+            <p id="modal-challenge-name" style="color: var(--text-secondary); margin-bottom: 1rem;"></p>
+
+            <div class="form-group">
+                <label>How did it go? (1-5 stars)</label>
+                <div class="rating-group" id="rating-group">
+                    <button class="rating-btn" data-rating="1">1</button>
+                    <button class="rating-btn" data-rating="2">2</button>
+                    <button class="rating-btn" data-rating="3">3</button>
+                    <button class="rating-btn" data-rating="4">4</button>
+                    <button class="rating-btn" data-rating="5">5</button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Confidence level</label>
+                <div class="confidence-group" id="confidence-group">
+                    <button class="confidence-btn red" data-confidence="red">Learning</button>
+                    <button class="confidence-btn yellow" data-confidence="yellow">Practicing</button>
+                    <button class="confidence-btn green" data-confidence="green">Confident</button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Notes (optional)</label>
+                <textarea id="completion-notes" placeholder="What did you learn? Any patterns you noticed?"></textarea>
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+                <button class="btn-submit" onclick="submitCompletion()">Complete (+<span id="modal-xp">0</span> XP)</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let skillsData = [];
+        let challengesData = [];
+        let progressData = { skills: {}, total_xp: 0, challenges_completed: 0 };
+        let selectedSkill = null;
+        let currentChallenge = null;
+        let selectedRating = 3;
+        let selectedConfidence = 'yellow';
+
+        // Fetch initial data
+        async function init() {
+            await Promise.all([
+                fetchSkills(),
+                fetchChallenges(),
+                fetchProgress()
+            ]);
+            renderTree();
+            updateStats();
+        }
+
+        async function fetchSkills() {
+            const res = await fetch('/api/skills');
+            skillsData = await res.json();
+        }
+
+        async function fetchChallenges() {
+            const res = await fetch('/api/challenges');
+            challengesData = await res.json();
+        }
+
+        async function fetchProgress() {
+            const res = await fetch('/api/progress');
+            progressData = await res.json();
+        }
+
+        function updateStats() {
+            document.getElementById('total-xp').textContent = progressData.total_xp;
+            document.getElementById('challenges-done').textContent = progressData.challenges_completed;
+        }
+
+        function getSkillProgress(skillId) {
+            return progressData.skills[skillId] || {
+                skill_id: skillId,
+                current_xp: 0,
+                level: 'locked',
+                confidence: 'red'
+            };
+        }
+
+        function renderTree() {
+            const panel = document.getElementById('tree-panel');
+            panel.innerHTML = '';
+
+            skillsData.forEach(branch => {
+                const branchEl = document.createElement('div');
+                branchEl.className = 'branch';
+
+                // Calculate branch progress
+                let completedCount = 0;
+                branch.skills.forEach(skill => {
+                    const progress = getSkillProgress(skill.id);
+                    if (progress.level === 'completed') completedCount++;
+                });
+
+                branchEl.innerHTML = `
+                    <div class="branch-header">
+                        <div class="branch-dot" style="background: ${branch.color}"></div>
+                        <span class="branch-name">${branch.name}</span>
+                        <span class="branch-progress">${completedCount}/${branch.skills.length}</span>
+                    </div>
+                    <div class="skills-grid" id="branch-${branch.id}"></div>
+                `;
+
+                panel.appendChild(branchEl);
+
+                const grid = document.getElementById(`branch-${branch.id}`);
+                branch.skills.forEach(skill => {
+                    const progress = getSkillProgress(skill.id);
+                    const node = document.createElement('div');
+                    node.className = `skill-node ${progress.level}`;
+                    node.onclick = () => selectSkill(skill, branch);
+
+                    node.innerHTML = `
+                        <div class="skill-name">${skill.name}</div>
+                        <div class="skill-xp">${progress.current_xp}/${skill.xp_required} XP</div>
+                        ${progress.confidence !== 'red' ? `<div class="confidence-badge ${progress.confidence}"></div>` : ''}
+                    `;
+
+                    grid.appendChild(node);
+                });
+            });
+        }
+
+        function selectSkill(skill, branch) {
+            selectedSkill = skill;
+            const progress = getSkillProgress(skill.id);
+            const skillChallenges = challengesData.filter(c => c.skill_ids.includes(skill.id));
+
+            const sidebar = document.getElementById('sidebar-content');
+            sidebar.innerHTML = `
+                <div class="skill-detail active">
+                    <h2 style="color: ${branch.color}">${skill.name}</h2>
+                    <p>${skill.description}</p>
+
+                    <div style="display: flex; gap: 1rem; margin-bottom: 1rem;">
+                        <div>
+                            <span style="color: var(--text-secondary)">XP:</span>
+                            <strong>${progress.current_xp}/${skill.xp_required}</strong>
+                        </div>
+                        <div>
+                            <span style="color: var(--text-secondary)">Level:</span>
+                            <strong>${progress.level}</strong>
+                        </div>
+                    </div>
+
+                    ${skill.tips.length > 0 ? `
+                        <div class="tips">
+                            <h3>Tips</h3>
+                            <ul>
+                                ${skill.tips.map(tip => `<li>${tip}</li>`).join('')}
+                            </ul>
+                        </div>
+                    ` : ''}
+
+                    <h3 style="margin-bottom: 0.75rem;">Challenges</h3>
+                    <div class="challenges-list">
+                        ${skillChallenges.length > 0 ? skillChallenges.map(c => `
+                            <div class="challenge-card">
+                                <div class="challenge-header">
+                                    <span class="challenge-name">${c.name}</span>
+                                    <span class="challenge-xp">+${c.xp_reward} XP</span>
+                                </div>
+                                <p class="challenge-desc">${c.description}</p>
+                                <span class="challenge-difficulty ${c.difficulty}">${c.difficulty}</span>
+                                <button class="complete-btn" onclick="openCompleteModal('${c.id}')">
+                                    Mark Complete
+                                </button>
+                            </div>
+                        `).join('') : '<p style="color: var(--text-secondary)">No challenges yet for this skill.</p>'}
+                    </div>
+                </div>
+            `;
+        }
+
+        function openCompleteModal(challengeId) {
+            currentChallenge = challengesData.find(c => c.id === challengeId);
+            if (!currentChallenge) return;
+
+            document.getElementById('modal-challenge-name').textContent = currentChallenge.name;
+            document.getElementById('modal-xp').textContent = currentChallenge.xp_reward;
+            document.getElementById('completion-notes').value = '';
+
+            // Reset selections
+            selectedRating = 3;
+            selectedConfidence = 'yellow';
+            updateRatingUI();
+            updateConfidenceUI();
+
+            document.getElementById('completion-modal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('completion-modal').classList.remove('active');
+            currentChallenge = null;
+        }
+
+        // Rating buttons
+        document.getElementById('rating-group').addEventListener('click', (e) => {
+            if (e.target.classList.contains('rating-btn')) {
+                selectedRating = parseInt(e.target.dataset.rating);
+                updateRatingUI();
+            }
+        });
+
+        function updateRatingUI() {
+            document.querySelectorAll('.rating-btn').forEach(btn => {
+                btn.classList.toggle('selected', parseInt(btn.dataset.rating) === selectedRating);
+            });
+        }
+
+        // Confidence buttons
+        document.getElementById('confidence-group').addEventListener('click', (e) => {
+            if (e.target.classList.contains('confidence-btn')) {
+                selectedConfidence = e.target.dataset.confidence;
+                updateConfidenceUI();
+            }
+        });
+
+        function updateConfidenceUI() {
+            document.querySelectorAll('.confidence-btn').forEach(btn => {
+                btn.classList.toggle('selected', btn.dataset.confidence === selectedConfidence);
+            });
+        }
+
+        async function submitCompletion() {
+            if (!currentChallenge) return;
+
+            const res = await fetch('/api/complete', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    challenge_id: currentChallenge.id,
+                    notes: document.getElementById('completion-notes').value,
+                    self_rating: selectedRating,
+                    confidence: selectedConfidence
+                })
+            });
+
+            if (res.ok) {
+                closeModal();
+                await fetchProgress();
+                updateStats();
+                renderTree();
+
+                // Re-select the skill to refresh sidebar
+                if (selectedSkill) {
+                    const branch = skillsData.find(b => b.skills.some(s => s.id === selectedSkill.id));
+                    if (branch) selectSkill(selectedSkill, branch);
+                }
+            }
+        }
+
+        // Close modal on overlay click
+        document.getElementById('completion-modal').addEventListener('click', (e) => {
+            if (e.target.id === 'completion-modal') closeModal();
+        });
+
+        // Initialize
+        init();
+    </script>
+</body>
+</html>

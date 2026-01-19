@@ -1,0 +1,170 @@
+challenges:
+  # Context Engineering Challenges
+  - id: challenge_claude_md_audit
+    name: CLAUDE.md Audit
+    description: Review and improve a project's CLAUDE.md file
+    skill_ids: [context_claude_md]
+    xp_reward: 50
+    difficulty: easy
+    constraints:
+      - Keep the result under 500 tokens
+      - Include only project-specific information
+    success_criteria: CLAUDE.md is concise and actionable
+
+  - id: challenge_blind_navigation
+    name: Blind Navigation
+    description: Navigate a codebase you haven't seen before using only agent tools
+    skill_ids: [context_project_structure, tools_explore_agent]
+    xp_reward: 100
+    difficulty: medium
+    constraints:
+      - No manual file browsing
+      - Complete task in under 10 agent turns
+    success_criteria: Successfully locate and understand the target code
+
+  - id: challenge_context_budget
+    name: Context Budget
+    description: Complete a multi-file refactor while staying under 50k tokens
+    skill_ids: [context_window_mgmt, context_session_strategy]
+    xp_reward: 150
+    difficulty: hard
+    constraints:
+      - Track token usage throughout
+      - Use /compact strategically
+    success_criteria: Refactor complete with token budget maintained
+
+  # Prompt Design Challenges
+  - id: challenge_one_shot
+    name: One-Shot Wonder
+    description: Complete a feature implementation with a single prompt (no follow-ups)
+    skill_ids: [prompts_task_framing, prompts_constraints]
+    xp_reward: 75
+    difficulty: medium
+    constraints:
+      - Only one user message allowed
+      - No clarification rounds
+    success_criteria: Feature implemented correctly on first attempt
+
+  - id: challenge_format_master
+    name: Format Master
+    description: Get the agent to output in three different structured formats
+    skill_ids: [prompts_output_control]
+    xp_reward: 50
+    difficulty: easy
+    constraints:
+      - Request JSON, YAML, and markdown table outputs
+      - Each must be valid/parseable
+    success_criteria: All three formats produced correctly
+
+  - id: challenge_complex_workflow
+    name: Complex Workflow
+    description: Define a 5+ step workflow that the agent executes without intervention
+    skill_ids: [prompts_multi_step]
+    xp_reward: 100
+    difficulty: medium
+    constraints:
+      - Steps must have dependencies
+      - Include at least one conditional branch
+    success_criteria: Workflow completes autonomously
+
+  # Tool Selection Challenges
+  - id: challenge_search_efficiency
+    name: Search Efficiency
+    description: Find a specific function in a large codebase in under 3 tool calls
+    skill_ids: [tools_read_grep_glob]
+    xp_reward: 50
+    difficulty: easy
+    constraints:
+      - Maximum 3 search-related tool calls
+      - Must locate exact line number
+    success_criteria: Target found within tool budget
+
+  - id: challenge_no_bash
+    name: No Bash Allowed
+    description: Complete a file manipulation task without using Bash
+    skill_ids: [tools_bash_vs_dedicated]
+    xp_reward: 75
+    difficulty: medium
+    constraints:
+      - Bash tool is forbidden
+      - Must create, edit, and organize files
+    success_criteria: Task complete using only dedicated tools
+
+  - id: challenge_parallel_blitz
+    name: Parallel Blitz
+    description: Gather information from 5+ files in a single agent turn
+    skill_ids: [tools_parallel]
+    xp_reward: 100
+    difficulty: medium
+    constraints:
+      - All reads must happen in parallel
+      - Must synthesize findings
+    success_criteria: Information gathered and summarized efficiently
+
+  # Orchestration Challenges
+  - id: challenge_divide_conquer
+    name: Divide and Conquer
+    description: Break a large task into 3+ subtasks and complete them
+    skill_ids: [orch_decomposition]
+    xp_reward: 75
+    difficulty: medium
+    constraints:
+      - Each subtask must be independently verifiable
+      - Track progress with todo list
+    success_criteria: All subtasks complete, main task achieved
+
+  - id: challenge_background_ops
+    name: Background Operations
+    description: Run tests in background while continuing other work
+    skill_ids: [orch_background]
+    xp_reward: 100
+    difficulty: medium
+    constraints:
+      - Must start background task
+      - Complete at least one other operation while waiting
+    success_criteria: Parallel work demonstrated
+
+  - id: challenge_multi_agent_research
+    name: Multi-Agent Research
+    description: Use multiple Explore agents in parallel to research a topic
+    skill_ids: [orch_multi_agent, tools_explore_agent]
+    xp_reward: 150
+    difficulty: hard
+    constraints:
+      - Launch at least 2 agents in parallel
+      - Synthesize their findings
+    success_criteria: Comprehensive research from parallel exploration
+
+  # Debugging Challenges
+  - id: challenge_spot_hallucination
+    name: Spot the Hallucination
+    description: Identify and correct a hallucinated code reference
+    skill_ids: [debug_hallucinations]
+    xp_reward: 50
+    difficulty: easy
+    constraints:
+      - Must explain why it was a hallucination
+      - Provide the correct information
+    success_criteria: Hallucination caught and corrected
+
+  - id: challenge_derailed_recovery
+    name: Derailed Recovery
+    description: Recover a session that went off-track without starting over
+    skill_ids: [debug_off_track, debug_recovery]
+    xp_reward: 100
+    difficulty: medium
+    constraints:
+      - Cannot start a new session
+      - Must get back to the original goal
+    success_criteria: Original task completed after correction
+
+  - id: challenge_failure_proof
+    name: Failure-Proof Workflow
+    description: Design a workflow with explicit failure handling
+    skill_ids: [debug_prevention]
+    xp_reward: 125
+    difficulty: hard
+    constraints:
+      - Include verification steps
+      - Handle at least 2 failure modes
+    success_criteria: Workflow handles failures gracefully

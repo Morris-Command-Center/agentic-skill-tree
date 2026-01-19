@@ -1,0 +1,225 @@
+branches:
+  - id: context
+    name: Context Engineering
+    description: Master the art of providing effective context to AI agents
+    color: "#3B82F6"  # blue
+    skills:
+      - id: context_claude_md
+        name: CLAUDE.md Basics
+        description: Write effective CLAUDE.md files that guide agent behavior
+        prerequisites: []
+        xp_required: 100
+        tips:
+          - Keep it terse - only project-specific info
+          - Include build/test commands
+          - Note unusual patterns or gotchas
+
+      - id: context_project_structure
+        name: Project Structure
+        description: Organize projects so agents can navigate efficiently
+        prerequisites: [context_claude_md]
+        xp_required: 150
+        tips:
+          - Consistent naming conventions
+          - Clear separation of concerns
+          - README files where needed
+
+      - id: context_window_mgmt
+        name: Context Window Management
+        description: Understand and optimize context window usage
+        prerequisites: [context_claude_md]
+        xp_required: 200
+        tips:
+          - Know when you're getting close to limits
+          - Use /compact proactively
+          - Structure conversations for summarization
+
+      - id: context_session_strategy
+        name: Session Strategy
+        description: Know when to compact, restart, or continue sessions
+        prerequisites: [context_window_mgmt]
+        xp_required: 250
+        tips:
+          - Fresh sessions for unrelated tasks
+          - Compact before complex operations
+          - Handoff documents for multi-session work
+
+  - id: prompts
+    name: Prompt Design
+    description: Write prompts that get results on the first try
+    color: "#10B981"  # green
+    skills:
+      - id: prompts_task_framing
+        name: Clear Task Framing
+        description: Frame tasks so the agent understands exactly what you want
+        prerequisites: []
+        xp_required: 100
+        tips:
+          - State the goal upfront
+          - Specify what "done" looks like
+          - Include relevant constraints
+
+      - id: prompts_constraints
+        name: Constraint Specification
+        description: Define boundaries and limitations effectively
+        prerequisites: [prompts_task_framing]
+        xp_required: 150
+        tips:
+          - Be explicit about what NOT to do
+          - Specify file/scope boundaries
+          - Define acceptable vs unacceptable approaches
+
+      - id: prompts_output_control
+        name: Output Format Control
+        description: Get responses in the format you need
+        prerequisites: [prompts_task_framing]
+        xp_required: 150
+        tips:
+          - Specify format explicitly
+          - Provide examples when helpful
+          - Request structured output for parsing
+
+      - id: prompts_multi_step
+        name: Multi-Step Instructions
+        description: Break complex tasks into clear sequential steps
+        prerequisites: [prompts_constraints, prompts_output_control]
+        xp_required: 200
+        tips:
+          - Number steps explicitly
+          - Define dependencies between steps
+          - Include checkpoints/verification
+
+  - id: tools
+    name: Tool Selection
+    description: Choose the right tool for each operation
+    color: "#F59E0B"  # amber
+    skills:
+      - id: tools_read_grep_glob
+        name: Read vs Grep vs Glob
+        description: Know when to use each file operation tool
+        prerequisites: []
+        xp_required: 100
+        tips:
+          - Glob for finding files by pattern
+          - Grep for searching content
+          - Read for examining specific files
+
+      - id: tools_explore_agent
+        name: When to Use Explore Agent
+        description: Delegate broad exploration vs direct searching
+        prerequisites: [tools_read_grep_glob]
+        xp_required: 150
+        tips:
+          - Explore for open-ended codebase questions
+          - Direct tools for specific known targets
+          - Explore when you're not sure where to look
+
+      - id: tools_bash_vs_dedicated
+        name: Bash vs Dedicated Tools
+        description: Use specialized tools over shell commands
+        prerequisites: [tools_read_grep_glob]
+        xp_required: 150
+        tips:
+          - Edit over sed/awk
+          - Read over cat/head/tail
+          - Write over echo redirection
+
+      - id: tools_parallel
+        name: Parallel Tool Calls
+        description: Maximize efficiency with parallel operations
+        prerequisites: [tools_bash_vs_dedicated]
+        xp_required: 200
+        tips:
+          - Independent operations in parallel
+          - Dependent operations sequential
+          - Multiple Explore agents for broad searches
+
+  - id: orchestration
+    name: Agent Orchestration
+    description: Coordinate complex multi-agent workflows
+    color: "#8B5CF6"  # purple
+    skills:
+      - id: orch_decomposition
+        name: Task Decomposition
+        description: Break complex tasks into agent-sized chunks
+        prerequisites: []
+        xp_required: 100
+        tips:
+          - Each subtask should be self-contained
+          - Define clear interfaces between tasks
+          - Consider parallelization opportunities
+
+      - id: orch_background
+        name: Background Agents
+        description: Use background agents for long-running tasks
+        prerequisites: [orch_decomposition]
+        xp_required: 150
+        tips:
+          - Good for builds, tests, exploratory searches
+          - Check output files to monitor progress
+          - Don't block on tasks that can run async
+
+      - id: orch_handoffs
+        name: Agent Handoffs
+        description: Pass context between agents effectively
+        prerequisites: [orch_decomposition]
+        xp_required: 200
+        tips:
+          - Include necessary context in prompts
+          - Use handoff documents for complex state
+          - Define clear success criteria
+
+      - id: orch_multi_agent
+        name: Multi-Agent Coordination
+        description: Orchestrate multiple agents working together
+        prerequisites: [orch_background, orch_handoffs]
+        xp_required: 300
+        tips:
+          - Plan the coordination strategy upfront
+          - Handle agent failures gracefully
+          - Merge results from parallel agents
+
+  - id: debugging
+    name: Debugging Agent Failures
+    description: Diagnose and fix when agents go wrong
+    color: "#EF4444"  # red
+    skills:
+      - id: debug_hallucinations
+        name: Recognizing Hallucinations
+        description: Spot when agents make things up
+        prerequisites: []
+        xp_required: 100
+        tips:
+          - Verify file paths and function names
+          - Check that referenced code actually exists
+          - Be suspicious of too-confident assertions
+
+      - id: debug_off_track
+        name: Why Did It Go Off-Track?
+        description: Analyze root causes of agent misbehavior
+        prerequisites: [debug_hallucinations]
+        xp_required: 150
+        tips:
+          - Ambiguous instructions
+          - Missing context
+          - Incorrect assumptions from earlier in conversation
+
+      - id: debug_recovery
+        name: Recovery Strategies
+        description: Get back on track when things go wrong
+        prerequisites: [debug_off_track]
+        xp_required: 200
+        tips:
+          - Explicit correction with context
+          - Restart with clearer instructions
+          - Break into smaller steps
+
+      - id: debug_prevention
+        name: Prevention Patterns
+        description: Proactive patterns to avoid failures
+        prerequisites: [debug_recovery]
+        xp_required: 250
+        tips:
+          - Verification steps in complex workflows
+          - Clear boundaries and constraints upfront
+          - Regular checkpoints in long sessions
